@@ -84,10 +84,10 @@ class Board extends React.Component {
           useNativeDriver: false,
         })(event, gesture)
 
-        if (startingX + gesture.dx < -50 && gesture.vx < 0) {
+        if (startingX + gesture.dx < -110 && gesture.vx < 0) {
           this.carousel.snapToPrev()
         }
-        if (startingX + gesture.dx + CARD_WIDTH - 50 > deviceWidth && gesture.vx > 0) {
+        if (startingX + gesture.dx + CARD_WIDTH - 110 > deviceWidth && gesture.vx > 0) {
           this.carousel.snapToNext()
         }
 
