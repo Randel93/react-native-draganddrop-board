@@ -343,7 +343,7 @@ class Board extends React.Component {
       <BoardWrapper
         {...this.panResponder.panHandlers}>
         <BoardWrapper
-          onLayout={(evt) => this.setBoardPositionY(evt.nativeEvent.layout.height * .3)}
+          onLayout={(evt) => this.setBoardPositionY(evt.nativeEvent.layout.height * .5)}
           backgroundColor={boardBackground}
         >
           <Carousel
