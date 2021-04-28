@@ -36,7 +36,18 @@ const Paragraph = styled.Text`
   ${color};
   ${lineHeight};
 `
-
+const ColumnHeader = styled.Text`
+  ${fontFamily};
+  ${fontSize};
+  ${lineHeight};
+  color: #ffffff;
+  background-color: #3F87C7;
+  padding: 10px;
+  width: 100%;
+  text-align: center;
+  border-radius: 6px;
+  overflow: hidden;
+`
 const RowWrapper = styled.View`
   opacity: 1;
 `
@@ -53,5 +64,6 @@ export {
   Paragraph,
   RowContainer,
   RowWrapper,
-  SumWrapper
+  SumWrapper,
+  ColumnHeader
 }

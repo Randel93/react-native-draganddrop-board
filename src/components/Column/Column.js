@@ -20,7 +20,8 @@ import {
   Paragraph,
   RowContainer,
   RowWrapper,
-  SumWrapper
+  SumWrapper,
+  ColumnHeader,
 } from './Column.styled'
 
 const COLUMN_WIDTH = 0.85 * deviceWidth
@@ -195,13 +196,13 @@ class Column extends React.Component {
         marginRight={oneColumn ? 0 : 8}
       >
         <RowContainer>
-          <Paragraph
+          <ColumnHeader
             fontSize={columnNameFontSize}
             fontFamily={columnNameFontFamily}
             color={columnNameTextColor}
           >
             {column.data().name}
-          </Paragraph>
+          </ColumnHeader>
           {isWithCountBadge && <SumWrapper>
             <ParagraphWrapper
               backgroundColor={badgeBackgroundColor}
