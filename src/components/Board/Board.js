@@ -159,7 +159,7 @@ class Board extends React.Component {
 
     } catch (error) {
       const { draggedItem, srcColumnId } = this.state
-      const { onDragEnd } = this.props
+      const { onDragEnd, boardRepository } = this.props
       const destColumnId = draggedItem.columnId()
       this.setState({ movingMode: false, startingX: 0, startingY: 0 })
       console.log("endMoving", error)
