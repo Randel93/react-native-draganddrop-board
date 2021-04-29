@@ -21,7 +21,7 @@ const EmptyColumn = ({
   emptyTextFontSize,
   marginTop
 }) =>  (
-  <EmptyWrapper marginTop={marginTop}>
+  <EmptyWrapper>
     <Empty color={emptyIconColor} />
     <Paragraph
       color={emptyTextColor}

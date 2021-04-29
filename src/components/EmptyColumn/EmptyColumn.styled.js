@@ -8,6 +8,7 @@ import {
 const EmptyWrapper = styled.View`
   justifyContent: center;
   alignItems: center;
+  marginTop: 100;
 `
 
 const Paragraph = styled.Text`
