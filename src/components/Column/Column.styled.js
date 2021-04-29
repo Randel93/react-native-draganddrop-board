@@ -1,4 +1,5 @@
 import styled from 'styled-components/native'
+import {StyleSheet} from 'react-native';
 import {
   borderRadius,
   color,
@@ -9,12 +10,15 @@ import {
 } from 'styled-system'
 
 const ColumnWrapper = styled.View`
-  paddingHorizontal: 8;
   ${borderRadius};
   maxWidth: 400;
   ${marginRight};
   ${props => `height: ${props.columnHeight}`}
+  borderWidth: ${StyleSheet.hairlineWidth};
+  borderColor: #C3C3C3;
+  overflow: hidden;  
 `
+
 
 const ParagraphWrapper = styled.View`
   alignItems: center;
@@ -24,11 +28,11 @@ const ParagraphWrapper = styled.View`
 const RowContainer = styled.View`
   flexDirection: row;
   alignItems: center;
-  paddingVertical: 18;
-  paddingHorizontal: 10;
   justifyContent:center;
-
-`
+  backgroundColor: #3F87C7;
+  overflow: hidden;
+  marginBottom: 10;
+`  
 
 const Paragraph = styled.Text`
   ${fontFamily};
@@ -43,7 +47,6 @@ const ColumnHeader = styled.Text`
   color: #ffffff;
   background-color: #3F87C7;
   padding: 10px;
-  width: 100%;
   text-align: center;
   border-radius: 6px;
   overflow: hidden;

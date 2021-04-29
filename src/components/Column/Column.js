@@ -242,6 +242,7 @@ class Column extends React.Component {
             onContentSizeChange={this.onContentSizeChange}
             showsVerticalScrollIndicator={false}
             enableEmptySections
+            contentContainerStyle={{paddingHorizontal: 8}}
           />
         }
       </ColumnWrapper>
