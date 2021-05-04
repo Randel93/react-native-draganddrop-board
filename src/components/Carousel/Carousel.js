@@ -253,7 +253,11 @@ class Carousel extends Component {
       return
     }
 
-    setTimeout(() => this.snapToItem(newIndex), 500)
+    setTimeout(() => {
+      onScrollEndDrag();
+      this.snapToItem(newIndex);
+      onScrollEndDrag();
+    }, 850)
     onScrollEndDrag()
   }
 
@@ -263,7 +267,11 @@ class Carousel extends Component {
     if (newIndex < 0) {
       return
     }
-    setTimeout(() => this.snapToItem(newIndex), 500)
+    setTimeout(() => {
+      onScrollEndDrag();
+      this.snapToItem(newIndex);
+      onScrollEndDrag();
+    }, 850)
     onScrollEndDrag()
   }
 
