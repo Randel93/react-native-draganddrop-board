@@ -48,7 +48,6 @@ const Card = ({
 
   return (
     <CardWrapper
-      onPress={onPress}
       collapsable={false}
     >
       <Animated.View style={styles}>
