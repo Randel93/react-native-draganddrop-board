@@ -53,7 +53,7 @@ const Card = ({
       collapsable={false}
     >
       <Animated.View style={styles}>
-        {cardContent !== undefined ? cardContent(item ? item.row() : {}) :
+        {cardContent !== undefined ? cardContent(item ? item.row() : {}, onPressIn) :
 
           <CardContainer
             backgroundColor={cardBackground}
