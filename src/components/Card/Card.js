@@ -48,7 +48,6 @@ const Card = ({
 
   return (
     <CardWrapper
-      onPressIn={(evt) => onPressIn ? onPressIn(evt.nativeEvent.pageY) : {}}
       onPress={onPress}
       collapsable={false}
     >
