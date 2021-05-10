@@ -39,13 +39,14 @@ class Board extends React.Component {
       pan: new Animated.ValueXY(),
       startingX: 0,
       startingY: 0,
-      movingMode: false
+      movingMode: false,
+      hasScheduleToSnap: null,
     }
 
     this.varticalOffset = 0
 
     this.panResponder = PanResponder.create({
-      onMoveShouldSetPanResponder: () => this.state.movingMode,
+      onMoveShouldSetPanResponder: () => this.state.movingMode && !this.state.hasScheduleToSnap,
       onPanResponderMove: this.onPanResponderMove,
       onPanResponderRelease: this.onPanResponderRelease,
       onPanResponderTerminate: this.onPanResponderRelease
@@ -64,6 +65,7 @@ class Board extends React.Component {
   }
 
   onPanResponderMove = (event, gesture) => {
+    if (this.state.hasScheduleToSnap) return;
     try {
       const {
         draggedItem,
@@ -84,11 +86,29 @@ class Board extends React.Component {
           useNativeDriver: false,
         })(event, gesture)
 
-        if (startingX + gesture.dx < 0 && gesture.vx < 0) {
-          this.carousel.snapToPrev()
+        if (startingX + gesture.dx < -50 && gesture.vx < 0) {
+          if (!this.state.hasScheduleToSnap) {
+            this.setState({
+              hasScheduleToSnap: setTimeout(() => {
+                this.carousel.snapToPrev()
+                this.setState({
+                  hasScheduleToSnap: null,
+                });
+              }, 1000),
+            });
+          };
         }
-        if (startingX + gesture.dx + CARD_WIDTH > deviceWidth && gesture.vx > 0) {
-          this.carousel.snapToNext()
+        if (startingX + gesture.dx + CARD_WIDTH - 50 > deviceWidth && gesture.vx > 0) {
+          if (!this.state.hasScheduleToSnap) {
+            this.setState({
+              hasScheduleToSnap: setTimeout(() => {
+                this.carousel.snapToNext()
+                this.setState({
+                  hasScheduleToSnap: null,
+                });
+              }, 1000),
+            });
+          };
         }
 
         const columnId = this.carousel.currentIndex
