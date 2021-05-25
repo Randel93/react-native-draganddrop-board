@@ -1,34 +1,21 @@
-import React from 'react'
-import ReactTimeout from 'react-timeout'
-import {
-  Animated,
-  PanResponder,
-  StatusBar
-} from 'react-native'
-import {
-  func,
-  object,
-  string
-} from 'prop-types'
-import {
-  colors,
-  deviceWidth,
-  ios,
-  isX
-} from '../../constants'
-import Column from '../Column/Column'
-import Card from '../Card/Card'
-import Carousel from '../Carousel/Carousel'
-import { BoardWrapper } from './Board.styled'
+import React from 'react';
+import ReactTimeout from 'react-timeout';
+import {Animated, PanResponder, StatusBar} from 'react-native';
+import {func, object, string} from 'prop-types';
+import {colors, deviceWidth, ios, isX} from '../../constants';
+import Column from '../Column/Column';
+import Card from '../Card/Card';
+import Carousel from '../Carousel/Carousel';
+import {BoardWrapper} from './Board.styled';
 
-const MAX_RANGE = 100
-const MAX_DEG = 30
-let CARD_WIDTH = 0.85 * deviceWidth
-const STATUSBAR_HEIGHT = ios ? (isX() ? 44 : 20) : StatusBar.currentHeight
+const MAX_RANGE = 100;
+const MAX_DEG = 30;
+let CARD_WIDTH = 0.85 * deviceWidth;
+const STATUSBAR_HEIGHT = ios ? (isX() ? 44 : 20) : StatusBar.currentHeight;
 
 class Board extends React.Component {
   constructor(props) {
-    super(props)
+    super(props);
 
     if (this.props.columnWidth) {
       CARD_WIDTH = this.props.columnWidth;
@@ -40,274 +27,269 @@ class Board extends React.Component {
       startingX: 0,
       startingY: 0,
       movingMode: false,
-      hasScheduleToSnap: null,
-    }
+    };
 
-    this.varticalOffset = 0
+    this.varticalOffset = 0;
 
     this.panResponder = PanResponder.create({
-      onMoveShouldSetPanResponder: () => this.state.movingMode && !this.state.hasScheduleToSnap,
+      onMoveShouldSetPanResponder: () => this.state.movingMode,
       onPanResponderMove: this.onPanResponderMove,
       onPanResponderRelease: this.onPanResponderRelease,
-      onPanResponderTerminate: this.onPanResponderRelease
-    })
+      onPanResponderTerminate: this.onPanResponderRelease,
+    });
   }
 
   componentDidMount() {
-    this.val = { x: 0, y: 0 }
+    this.val = {x: 0, y: 0};
     // eslint-disable-next-line no-return-assign
-    this.state.pan.addListener((value) => this.val = value)
-
+    this.state.pan.addListener((value) => (this.val = value));
   }
 
   componentWillUnmount() {
-    this.unsubscribeFromMovingMode()
+    this.unsubscribeFromMovingMode();
   }
 
   onPanResponderMove = (event, gesture) => {
-    if (this.state.hasScheduleToSnap) return;
     try {
-      const {
-        draggedItem,
-        movingMode,
-        pan,
-        startingX
-      } = this.state
-      const { boardRepository } = this.props
+      const {draggedItem, movingMode, pan, startingX} = this.state;
+      const {boardRepository} = this.props;
 
       if (movingMode) {
-        this.x = event.nativeEvent.pageX
-        this.y = event.nativeEvent.pageY
+        this.x = event.nativeEvent.pageX;
+        this.y = event.nativeEvent.pageY;
 
-        Animated.event([
-          null, { dx: pan.x, dy: pan.y }
-        ], {
+        Animated.event([null, {dx: pan.x, dy: pan.y}], {
           listener: null,
           useNativeDriver: false,
-        })(event, gesture)
+        })(event, gesture);
 
         if (startingX + gesture.dx < -50 && gesture.vx < 0) {
-          if (!this.state.hasScheduleToSnap) {
-            this.setState({
-              hasScheduleToSnap: setTimeout(() => {
-                this.carousel.snapToPrev()
-                this.setState({
-                  hasScheduleToSnap: null,
-                });
-              }, 1000),
-            });
-          };
+          this.carousel.snapToPrev();
         }
-        if (startingX + gesture.dx + CARD_WIDTH - 50 > deviceWidth && gesture.vx > 0) {
-          if (!this.state.hasScheduleToSnap) {
-            this.setState({
-              hasScheduleToSnap: setTimeout(() => {
-                this.carousel.snapToNext()
-                this.setState({
-                  hasScheduleToSnap: null,
-                });
-              }, 1000),
-            });
-          };
+        if (
+          startingX + gesture.dx + CARD_WIDTH - 50 > deviceWidth &&
+          gesture.vx > 0
+        ) {
+          this.carousel.snapToNext();
         }
 
-        const columnId = this.carousel.currentIndex
-        const columnAtPosition = boardRepository.move(draggedItem, this.x, this.y, columnId)
+        const columnId = this.carousel.currentIndex;
+        const columnAtPosition = boardRepository.move(
+          draggedItem,
+          this.x,
+          this.y,
+          columnId,
+        );
         if (columnAtPosition) {
-          const { scrolling, offset } = boardRepository.scrollingPosition(columnAtPosition, this.x, this.y, columnId)
+          const {scrolling, offset} = boardRepository.scrollingPosition(
+            columnAtPosition,
+            this.x,
+            this.y,
+            columnId,
+          );
           if (this.shouldScroll(scrolling, offset, columnAtPosition)) {
-            this.scroll(columnAtPosition, draggedItem, offset)
+            this.scroll(columnAtPosition, draggedItem, offset);
           }
         }
       }
     } catch (error) {
-      console.log("columnAtPosition", error)
+      console.log('columnAtPosition', error);
     }
-
-  }
+  };
 
   shouldScroll = (scrolling, offset, column) => {
-    const placeToScroll = ((offset < 0
-      && column.scrollOffset() > 0)
-      || (offset > 0 && column.scrollOffset() < column.contentHeight()))
+    const placeToScroll =
+      (offset < 0 && column.scrollOffset() > 0) ||
+      (offset > 0 && column.scrollOffset() < column.contentHeight());
 
-    return scrolling && offset !== 0 && placeToScroll
-  }
+    return scrolling && offset !== 0 && placeToScroll;
+  };
 
   onScrollingStarted = () => {
-    this.scrolling = true
-  }
+    this.scrolling = true;
+  };
 
   onScrollingEnded = () => {
-    this.scrolling = false
-  }
+    this.scrolling = false;
+  };
 
   scroll = (column, draggedItem, anOffset) => {
-    const { requestAnimationFrame, boardRepository } = this.props
+    const {requestAnimationFrame, boardRepository} = this.props;
 
     if (!this.scrolling) {
-      this.onScrollingStarted()
-      const scrollOffset = column.scrollOffset() + 80 * anOffset
-      boardRepository.setScrollOffset(column.id(), scrollOffset)
+      this.onScrollingStarted();
+      const scrollOffset = column.scrollOffset() + 80 * anOffset;
+      boardRepository.setScrollOffset(column.id(), scrollOffset);
 
-      column.listView().scrollToOffset({ offset: scrollOffset })
+      column.listView().scrollToOffset({offset: scrollOffset});
     }
 
-    boardRepository.move(draggedItem, this.x, this.y)
-    const { scrolling, offset } = boardRepository.scrollingPosition(column, this.x, this.y)
+    boardRepository.move(draggedItem, this.x, this.y);
+    const {scrolling, offset} = boardRepository.scrollingPosition(
+      column,
+      this.x,
+      this.y,
+    );
     if (this.shouldScroll(scrolling, offset, column)) {
       requestAnimationFrame(() => {
-        this.scroll(column, draggedItem, offset)
-      })
+        this.scroll(column, draggedItem, offset);
+      });
     }
-  }
+  };
 
   endMoving = () => {
     try {
-      this.setState({ movingMode: false })
-      const { draggedItem, pan, srcColumnId } = this.state
-      const { boardRepository, onDragEnd } = this.props
+      this.setState({movingMode: false});
+      const {draggedItem, pan, srcColumnId} = this.state;
+      const {boardRepository, onDragEnd} = this.props;
 
-      boardRepository.show(draggedItem.columnId(), draggedItem)
-      boardRepository.notify(draggedItem.columnId(), 'reload')
+      boardRepository.show(draggedItem.columnId(), draggedItem);
+      boardRepository.notify(draggedItem.columnId(), 'reload');
 
-      const destColumnId = draggedItem.columnId()
-      pan.setValue({ x: 0, y: 0 })
-      this.setState({ startingX: 0, startingY: 0 })
+      const destColumnId = draggedItem.columnId();
+      pan.setValue({x: 0, y: 0});
+      this.setState({startingX: 0, startingY: 0});
 
-      return onDragEnd && onDragEnd(boardRepository.columns()[srcColumnId - 1], boardRepository.columns()[destColumnId - 1], draggedItem)
-
+      return (
+        onDragEnd &&
+        onDragEnd(
+          boardRepository.columns()[srcColumnId - 1],
+          boardRepository.columns()[destColumnId - 1],
+          draggedItem,
+        )
+      );
     } catch (error) {
-      const { draggedItem, srcColumnId } = this.state
-      const { onDragEnd, boardRepository } = this.props
-      const destColumnId = draggedItem.columnId()
-      this.setState({ movingMode: false, startingX: 0, startingY: 0 })
-      console.log("endMoving", error)
-      return onDragEnd && onDragEnd(boardRepository.columns()[srcColumnId - 1], boardRepository.columns()[destColumnId - 1], draggedItem)
-
+      const {draggedItem, srcColumnId} = this.state;
+      const {onDragEnd, boardRepository} = this.props;
+      const destColumnId = draggedItem.columnId();
+      this.setState({movingMode: false, startingX: 0, startingY: 0});
+      console.log('endMoving', error);
+      return (
+        onDragEnd &&
+        onDragEnd(
+          boardRepository.columns()[srcColumnId - 1],
+          boardRepository.columns()[destColumnId - 1],
+          draggedItem,
+        )
+      );
     }
-  }
+  };
 
   onPanResponderRelease = () => {
-    const { movingMode } = this.state
-    this.x = null
-    this.y = null
+    const {movingMode} = this.state;
+    this.x = null;
+    this.y = null;
 
     if (movingMode) {
-      this.rotate(0)
-      setTimeout(this.endMoving, 100)
+      this.rotate(0);
+      setTimeout(this.endMoving, 100);
     } else if (this.scrolling) {
-      this.unsubscribeFromMovingMode()
+      this.unsubscribeFromMovingMode();
     }
-  }
+  };
 
   rotate = (toValue) => {
-    const { rotate } = this.state
-    Animated.spring(
-      rotate,
-      {
-        toValue,
-        friction: 5,
-        useNativeDriver: true
-      }
-    ).start()
-  }
+    const {rotate} = this.state;
+    Animated.spring(rotate, {
+      toValue,
+      friction: 5,
+      useNativeDriver: true,
+    }).start();
+  };
 
   cancelMovingSubscription = () => {
-    const { clearTimeout } = this.props
+    const {clearTimeout} = this.props;
 
-    clearTimeout(this.movingSubscription)
-  }
+    clearTimeout(this.movingSubscription);
+  };
 
   unsubscribeFromMovingMode = () => {
-    this.cancelMovingSubscription()
-  }
+    this.cancelMovingSubscription();
+  };
 
   onPressIn = (columnId, item, dy) => {
-    const { boardPositionY } = this.state
-    const {
-      boardRepository,
-      setTimeout
-    } = this.props
+    const {boardPositionY} = this.state;
+    const {boardRepository, setTimeout} = this.props;
 
     if (item.isLocked()) {
-      return
+      return;
     }
 
     if (!item || (item.isLocked() && this.scrolling)) {
-      this.unsubscribeFromMovingMode()
-      return
+      this.unsubscribeFromMovingMode();
+      return;
     }
     this.movingSubscription = setTimeout(() => {
       if (!item || !item.layout()) {
-        return
+        return;
       }
-      const lastColumn = boardRepository.columns().length - 1
-      const columnIndex = this.carousel.currentIndex
+      const lastColumn = boardRepository.columns().length - 1;
+      const columnIndex = this.carousel.currentIndex;
 
-      let x
+      let x;
 
       if (columnIndex === 0) {
-        x = 16
+        x = 16;
       } else if (columnIndex > 0 && columnIndex < lastColumn) {
-        x = ((deviceWidth - (0.78 * deviceWidth) + 16) / 2)
+        x = (deviceWidth - 0.78 * deviceWidth + 16) / 2;
       } else if (columnIndex === lastColumn) {
-        x = deviceWidth - (0.78 * deviceWidth)
+        x = deviceWidth - 0.78 * deviceWidth;
       }
-      const { y } = item.layout()
+      const {y} = item.layout();
 
       if (columnId - 1 === columnIndex) {
-        boardRepository.hide(columnId, item)
+        boardRepository.hide(columnId, item);
         this.setState({
           movingMode: true,
           draggedItem: item,
           srcColumnId: item.columnId(),
           startingX: x,
-          startingY: dy - boardPositionY - STATUSBAR_HEIGHT - (ios ? 0 : (dy - y))
-        })
-        this.rotate(MAX_DEG)
+          startingY:
+            dy - boardPositionY - STATUSBAR_HEIGHT - (ios ? 0 : dy - y),
+        });
+        this.rotate(MAX_DEG);
       }
-    }, 200)
-  }
+    }, 200);
+  };
 
   onPress = (columnId, item) => {
-    const { open } = this.props
-    const { movingMode } = this.state
+    const {open} = this.props;
+    const {movingMode} = this.state;
 
     if (item.isLocked()) {
-      return
+      return;
     }
 
     return () => {
-      this.unsubscribeFromMovingMode()
+      this.unsubscribeFromMovingMode();
 
       if (item.isLocked()) {
-        return
+        return;
       }
 
       if (!movingMode) {
-        const columnIndex = this.carousel.currentIndex
+        const columnIndex = this.carousel.currentIndex;
 
         if (columnId - 1 === columnIndex) {
-          open(item.row())
+          open(item.row());
         }
       } else {
-        this.endMoving()
+        this.endMoving();
       }
-    }
-  }
+    };
+  };
 
   onScrollEnd = () => {
-    const { boardRepository } = this.props
-    boardRepository.updateColumnsLayoutAfterVisibilityChanged()
-  }
+    const {boardRepository} = this.props;
+    boardRepository.updateColumnsLayoutAfterVisibilityChanged();
+  };
 
   movingStyle = (zIndex) => {
-    const { pan, rotate, startingX, startingY } = this.state
+    const {pan, rotate, startingX, startingY} = this.state;
     const interpolatedRotateAnimation = rotate.interpolate({
       inputRange: [-MAX_RANGE, 0, MAX_RANGE],
-      outputRange: [`-${MAX_DEG}deg`, '0deg', `${MAX_DEG}deg`]
-    })
+      outputRange: [`-${MAX_DEG}deg`, '0deg', `${MAX_DEG}deg`],
+    });
 
     return {
       position: 'absolute',
@@ -316,63 +298,57 @@ class Board extends React.Component {
       left: startingX,
       width: CARD_WIDTH - 16,
       transform: [
-        { translateX: pan.x },
-        { translateY: pan.y },
-        { rotate: interpolatedRotateAnimation }
-      ]
-    }
-  }
+        {translateX: pan.x},
+        {translateY: pan.y},
+        {rotate: interpolatedRotateAnimation},
+      ],
+    };
+  };
 
   movingTask = () => {
-    const { draggedItem, movingMode } = this.state
-    const zIndex = movingMode ? 1 : -1
+    const {draggedItem, movingMode} = this.state;
+    const zIndex = movingMode ? 1 : -1;
     const data = {
       item: draggedItem,
       hidden: !movingMode,
-      style: this.movingStyle(zIndex)
-    }
+      style: this.movingStyle(zIndex),
+    };
 
-    return this.renderWrapperRow(data)
-  }
+    return this.renderWrapperRow(data);
+  };
 
   renderWrapperRow = (data) => (
-    <Card
-      {...data}
-      {...this.props}
-      width={CARD_WIDTH}
-    />
-  )
+    <Card {...data} {...this.props} width={CARD_WIDTH} />
+  );
 
   setScrollViewRef = (element) => {
-    this.scrollViewRef = element
-  }
+    this.scrollViewRef = element;
+  };
 
   setBoardPositionY = (y) => {
-    this.setState({ boardPositionY: y })
-  }
+    this.setState({boardPositionY: y});
+  };
 
   render() {
-    const { movingMode } = this.state
-    const {
-      boardBackground,
-      boardRepository,
-      data
-    } = this.props
+    const {movingMode} = this.state;
+    const {boardBackground, boardRepository, data} = this.props;
 
     return (
-      <BoardWrapper
-        {...this.panResponder.panHandlers}>
+      <BoardWrapper {...this.panResponder.panHandlers}>
         <BoardWrapper
-          onLayout={(evt) => this.setBoardPositionY(evt.nativeEvent.layout.height * .5)}
-          backgroundColor={boardBackground}
-        >
+          onLayout={(evt) =>
+            this.setBoardPositionY(evt.nativeEvent.layout.height * 0.5)
+          }
+          backgroundColor={boardBackground}>
           <Carousel
-            ref={(c) => { this.carousel = c }}
+            ref={(c) => {
+              this.carousel = c;
+            }}
             data={boardRepository.columns()}
             onScrollEndDrag={this.onScrollEnd}
             onScroll={this.cancelMovingSubscription}
             scrollEnabled={!movingMode}
-            renderItem={item => (
+            renderItem={(item) => (
               <Column
                 {...this.props}
                 key={item.item.data().id.toString()}
@@ -394,15 +370,15 @@ class Board extends React.Component {
           />
 
           {this.movingTask()}
-        </BoardWrapper >
+        </BoardWrapper>
       </BoardWrapper>
-    )
+    );
   }
 }
 
 Board.defaultProps = {
-  boardBackground: colors.deepComaru
-}
+  boardBackground: colors.deepComaru,
+};
 
 Board.propTypes = {
   boardBackground: string.isRequired,
@@ -411,7 +387,7 @@ Board.propTypes = {
   open: func.isRequired,
   requestAnimationFrame: func.isRequired,
   boardRepository: object.isRequired,
-  setTimeout: func.isRequired
-}
+  setTimeout: func.isRequired,
+};
 
-export default ReactTimeout(Board)
+export default ReactTimeout(Board);

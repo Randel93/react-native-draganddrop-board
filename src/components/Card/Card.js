@@ -48,10 +48,12 @@ const Card = ({
 
   return (
     <CardWrapper
+      onPressIn={(evt) => onPressIn ? onPressIn(evt.nativeEvent.pageY) : {}}
+      onPress={onPress}
       collapsable={false}
     >
       <Animated.View style={styles}>
-        {cardContent !== undefined ? cardContent(item ? item.row() : {}, onPressIn) :
+        {cardContent !== undefined ? cardContent(item ? item.row() : {}) :
 
           <CardContainer
             backgroundColor={cardBackground}
